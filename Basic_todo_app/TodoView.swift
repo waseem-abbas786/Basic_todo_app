@@ -175,12 +175,10 @@ struct TodoView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
             }
-<<<<<<< Updated upstream
         }
         .padding()
         .onAppear {
             vm.fetchTodo()
-=======
             .navigationTitle("My Todos ✅")
             .onAppear {
                 vm.fetchTodo()
@@ -230,7 +228,6 @@ struct TodoView: View {
                     .presentationDetents([.medium])
                 }
             }
->>>>>>> Stashed changes
         }
     }
 }
