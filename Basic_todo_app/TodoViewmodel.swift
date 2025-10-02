@@ -58,7 +58,22 @@ class TodoViewmodel : ObservableObject {
             
         }
     }
-    
+    func updateTodo(_ todo: TodoModel, newTitle: String, newBody: String) {
+        let request: NSFetchRequest<TodoEntity> = TodoEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", todo.id as CVarArg)
+        
+        do {
+            if let entity = try context.fetch(request).first {
+                entity.title = newTitle
+                entity.body = newBody
+                try context.save()
+                fetchTodo() // refresh todos array
+            }
+        } catch {
+            print("❌ Failed to update todo: \(error)")
+        }
+    }
+
     func saveContext () {
         do {
             try context.save()
