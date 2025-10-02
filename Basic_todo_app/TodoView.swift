@@ -15,6 +15,12 @@ struct TodoView: View {
     @State private var title: String = ""
     @State private var titleBody: String = ""
     
+
+    @State private var editingTodo: TodoModel? = nil
+    @State private var editTitle: String = ""
+    @State private var editBody: String = ""
+    @State private var showingEditSheet = false
+    
     init(context: NSManagedObjectContext) {
         _vm = StateObject(wrappedValue: TodoViewmodel(context: context))
     }
