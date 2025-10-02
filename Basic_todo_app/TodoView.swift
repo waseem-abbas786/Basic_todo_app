@@ -15,7 +15,6 @@ struct TodoView: View {
     @State private var title: String = ""
     @State private var titleBody: String = ""
     
-
     @State private var editingTodo: TodoModel? = nil
     @State private var editTitle: String = ""
     @State private var editBody: String = ""
@@ -43,6 +42,7 @@ struct TodoView: View {
     }
     
     var body: some View {
+
         VStack {
             TextField("Enter title", text: $title)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -85,20 +85,152 @@ struct TodoView: View {
                                     .foregroundColor(todo.isCompleted ? .green : .gray)
                             }
                             .buttonStyle(BorderlessButtonStyle())
+        NavigationStack {
+            VStack(spacing: 16) {
+                VStack(spacing: 12) {
+                    TextField("Enter title", text: $title)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                    
+                    TextField("Description", text: $titleBody)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                    
+                    Button {
+                        vm.addTodo(title: title, body: titleBody)
+                        title = ""
+                        titleBody = ""
+                        vm.fetchTodo()
+                    } label: {
+                        Label("Add Todo", systemImage: "plus.circle.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .disabled(title.isEmpty || titleBody.isEmpty)
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding()
+                .background(.ultraThinMaterial)
+                .cornerRadius(16)
+                .shadow(radius: 2)
+                TextField("🔍 Search todos...", text: $searchText)
+                    .padding(10)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                Picker("Filter", selection: $filter) {
+                    Text("All").tag(Filtering.all)
+                    Text("Completed").tag(Filtering.complete)
+                    Text("Incomplete").tag(Filtering.incomplete)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                List {
+                    ForEach(filteredTodos) { todo in
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(todo.title)
+                                    .font(.headline)
+                                    .foregroundColor(todo.isCompleted ? .gray : .primary)
+                                    .strikethrough(todo.isCompleted, color: .gray)
+                                
+                                Spacer()
+                                
+                                Button {
+                                    vm.toggleTodo(todo)
+                                } label: {
+                                    Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
+                                        .font(.title2)
+                                        .foregroundColor(todo.isCompleted ? .green : .gray)
+                                }
+                                .buttonStyle(.borderless)
+                                
+                                Button {
+                                    editingTodo = todo
+                                    editTitle = todo.title
+                                    editBody = todo.body
+                                    showingEditSheet = true
+                                } label: {
+                                    Image(systemName: "pencil")
+                                        .font(.title3)
+                                }
+                                .buttonStyle(.borderless)
+                            }
+                            
+                            if !todo.body.isEmpty {
+                                Text(todo.body)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+>>>>>>> Stashed changes
                         }
-                        Text(todo.body)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                        .padding(8)
+                    }
+                    .onDelete { indexSet in
+                        indexSet.map { filteredTodos[$0] }.forEach(vm.deleteTodo)
                     }
                 }
-                .onDelete { indexSet in
-                    indexSet.map { filteredTodos[$0] }.forEach(vm.deleteTodo)
-                }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
             }
+<<<<<<< Updated upstream
         }
         .padding()
         .onAppear {
             vm.fetchTodo()
+=======
+            .navigationTitle("My Todos ✅")
+            .onAppear {
+                vm.fetchTodo()
+            }
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [.blue.opacity(0.3), .purple.opacity(0.3)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+            )
+
+            .sheet(isPresented: $showingEditSheet) {
+                if let todo = editingTodo {
+                    VStack(spacing: 20) {
+                        Text("Edit Todo")
+                            .font(.title2)
+                            .bold()
+                        
+                        TextField("Title", text: $editTitle)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
+                        
+                        TextField("Description", text: $editBody)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
+                        
+                        HStack {
+                            Button("Cancel") {
+                                showingEditSheet = false
+                            }
+                            .buttonStyle(.bordered)
+                            
+                            Spacer()
+                            
+                            Button("Save") {
+                                vm.updateTodo(todo, newTitle: editTitle, newBody: editBody)
+                                showingEditSheet = false
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                    }
+                    .padding()
+                    .presentationDetents([.medium])
+                }
+            }
+>>>>>>> Stashed changes
         }
     }
 }
