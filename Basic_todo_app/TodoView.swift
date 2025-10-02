@@ -44,6 +44,7 @@ struct TodoView: View {
     
     var body: some View {
         VStack {
+            // Add new todo
             TextField("Enter title", text: $title)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             TextField("Description", text: $titleBody)
@@ -58,11 +59,12 @@ struct TodoView: View {
             .disabled(title.isEmpty || titleBody.isEmpty)
             .padding(.vertical)
             
+            // Search
             TextField("Search todos...", text: $searchText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
             
-
+            // Filter
             Picker("Filter", selection: $filter) {
                 Text("All").tag(Filtering.all)
                 Text("Completed").tag(Filtering.complete)
@@ -70,7 +72,6 @@ struct TodoView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding()
-            
             List {
                 ForEach(filteredTodos) { todo in
                     VStack(alignment: .leading) {
@@ -85,6 +86,14 @@ struct TodoView: View {
                                     .foregroundColor(todo.isCompleted ? .green : .gray)
                             }
                             .buttonStyle(BorderlessButtonStyle())
+                            
+                            // ✏️ Edit button
+                            Button("Edit") {
+                                editingTodo = todo
+                                editTitle = todo.title   // preload
+                                editBody = todo.body     // preload
+                                showingEditSheet = true
+                            }
                         }
                         Text(todo.body)
                             .font(.subheadline)
@@ -95,10 +104,42 @@ struct TodoView: View {
                     indexSet.map { filteredTodos[$0] }.forEach(vm.deleteTodo)
                 }
             }
+
         }
         .padding()
         .onAppear {
             vm.fetchTodo()
+        }
+        .sheet(isPresented: $showingEditSheet) {
+            if let todo = editingTodo {
+                VStack(spacing: 20) {
+                    Text("Edit Todo")
+                        .font(.headline)
+                    
+                    TextField("Title", text: $editTitle)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    TextField("Description", text: $editBody)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    HStack {
+                        Button("Cancel") {
+                            showingEditSheet = false
+                        }
+                        .buttonStyle(.bordered)
+                        
+                        Spacer()
+                        
+                        Button("Save") {
+                            vm.updateTodo(todo, newTitle: editTitle, newBody: editBody)
+                            showingEditSheet = false
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                }
+                .padding()
+                .presentationDetents([.medium])
+            }
         }
     }
 }
